@@ -19,6 +19,18 @@ class CommentController extends Controller
 		);
 	}
 
+    public function actionApprove($id)
+    {
+        if(Yii::app()->request->isPostRequest)
+        {
+            $comment=$this->loadModel($id);
+            $comment->approve();
+            $this->redirect(array('index'));
+        }
+        else
+            throw new CHttpException(400,'Invalid request...');
+    }
+
 	/**
 	 * Specifies the access control rules.
 	 * This method is used by the 'accessControl' filter.
@@ -120,13 +132,19 @@ class CommentController extends Controller
 	/**
 	 * Lists all models.
 	 */
-	public function actionIndex()
-	{
-		$dataProvider=new CActiveDataProvider('Comment');
-		$this->render('index',array(
-			'dataProvider'=>$dataProvider,
-		));
-	}
+    public function actionIndex()
+    {
+        $dataProvider=new CActiveDataProvider('Comment', array(
+            'criteria'=>array(
+                'with'=>'post',
+                'order'=>'t.status, t.create_time DESC',
+            ),
+        ));
+
+        $this->render('index',array(
+            'dataProvider'=>$dataProvider,
+        ));
+    }
 
 	/**
 	 * Manages all models.
